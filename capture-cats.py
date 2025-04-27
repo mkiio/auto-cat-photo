@@ -146,7 +146,8 @@ class CatDetector:
             self.cam.configure(self.still_cfg)
             self.cam.start()
             # grab full-res
-            full = self.cam.capture_array()  # RGB888 @ full sensor
+            frame = self.cam.capture_array()  # BGR888 @ full sensor
+            full = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             h_full, w_full, _ = full.shape
 
             # scale the preview box into full-res coords
