@@ -41,8 +41,9 @@ All of these are already present on the reference Pi image above, but listed her
 
 Install any missing Python deps with:
 
-```bash
+```
 sudo apt install python3-picamera2 python3-opencv python3-pil
+```
 
 ---
 
