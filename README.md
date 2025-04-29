@@ -104,10 +104,6 @@ Command-line flags
 
 ---
 
-## 🤓 How it works (internals)
-
----
-
 ## MIT License
 
 Copyright (c) 2025 mkiio
