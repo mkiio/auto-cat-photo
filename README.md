@@ -1,4 +1,4 @@
-# Cat Detector (`cat_detector.py`)
+# Auto Cat Photo Capture for Raspberry Pi
 
 A threaded Python script that runs **on-sensor cat detection** with the Raspberry Pi AI Camera (Sony IMX500) and saves both rectangular and square crops of every cat it sees.  
 Live preview is **on by default** and can be turned off with a command-line flag.
@@ -75,13 +75,13 @@ Quality is set to 92. The folder is auto-created on first run.
 ## 🚀 Usage
 ```
 # Default: preview ON
-python3 cat_detector.py
+python3 capture_cats.py
 
 # Explicitly turn preview on (redundant, but permitted)
-python3 cat_detector.py --preview
+python3 capture_cats.py --preview
 
 # Headless capture (no OpenCV window)
-python3 cat_detector.py --no-preview
+python3 capture_cats.py --no-preview
 ```
 
 Command-line flags
