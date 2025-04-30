@@ -1,8 +1,6 @@
 # Auto Cat Photo Capture for Raspberry Pi
 
-A threaded Python script that runs **on-sensor cat detection** with the Raspberry Pi AI Camera (Sony IMX500) and saves both rectangular and square crops of every cat it sees.  
-Live preview is **on by default** and can be turned off with a command-line flag.
-
+Cat detection and auto photo capture using the Raspberry Pi AI Camera (Sony IMX500) On-sensor inference.  Can save full frame or rectangular or square crops of the cat with optional live preview.
 ---
 
 ## ✨ Key features
@@ -10,9 +8,9 @@ Live preview is **on by default** and can be turned off with a command-line flag
 | Feature | Details |
 |---------|---------|
 | **On-chip inference** | Uses the IMX500’s built-in MobileNet-SSD COCO model for real-time detection. |
-| **Live preview** | OpenCV window at 640×480; disable with `--no-preview`. |
-| **High-resolution crops** | Switches to full-sensor mode in a background thread; saves:<br>• `cat_YYYYMMDD_HHMMSS.jpg` (rectangular crop + 10 % margin)<br>• `cat_YYYYMMDD_HHMMSS_square.jpg` (square 1024 × 1024) |
-| **Rate limiting** | Minimum 10 s between captures (configurable). |
+| **Live preview** | Previe wwindow at 640×480; disable with `--no-preview`. |
+| **High-resolution full frame or crops** | Switches to full-sensor mode in a background thread; saves:<br>• `cat_YYYYMMDD_HHMMSS.jpg` |
+| **Rate limiting** | Configurable delay between captures (s)|
 | **Config toggles** | Threshold, margin, crop size, save interval, save folder are one-line constants at the top. |
 | **Thread-safe** | Detection and high-res capture happen in separate threads so inference is never blocked. |
 
@@ -20,16 +18,13 @@ Live preview is **on by default** and can be turned off with a command-line flag
 
 ## 🖥️ Tested hardware & OS
 
-* Raspberry Pi 5 (4+ GB) running **Raspberry Pi OS Bookworm**  
-* **Raspberry Pi AI Camera** (Sony IMX500 sensor)  
-* `imx500-all` & `imx500-tools` installed  
-* **Python 3.11** + **Picamera2 ≥ 0.3**
+* Raspberry Pi 5 (4+ GB) w/Raspberry Pi OS
+* Raspberry Pi AI Camera 
+* Python 3.11 + Picamera2 ≥ 0.3
 
 ---
 
 ## 📦 Dependencies
-
-All of these are already present on the reference Pi image above, but listed here for clarity:
 
 | Package | Version (tested) |
 |---------|------------------|
@@ -37,7 +32,7 @@ All of these are already present on the reference Pi image above, but listed her
 | `python3-opencv`    | 4.10.* |
 | `python3-pil` (Pillow) | 10.* |
 | `numpy`             | 1.26.* |
-| `imx500-all`        | (latest) |
+| `imx500-all` & `imx500-tools` | (latest) |
 
 Install any missing Python deps with:
 
@@ -60,28 +55,20 @@ By default the script saves into a folder photos/ next to the script file:
 SCRIPT_DIR = Path(__file__).resolve().parent
 SAVE_DIR   = SCRIPT_DIR / "photos"
 ```
-Two JPEGs are written per detection:
-
-
-| File | Resolution | Notes |
-|------|------------|-------|
-| `cat_YYYYMMDD_HHMMSS.jpg` | original aspect, +10 % margin | High-res crop |
-| `cat_YYYYMMDD_HHMMSS_square.jpg` | 1024 × 1024 | Square, Lanczos-resampled |
-
-Quality is set to 92. The folder is auto-created on first run.
+One JPEGs are written per detection. Quality is set to 92. The folder is auto-created on first run.
 
 ---
 
 ## 🚀 Usage
 ```
-# Default: preview ON
+# Default: preview ON, square
 python3 capture_cats.py
-
-# Explicitly turn preview on (redundant, but permitted)
-python3 capture_cats.py --preview
 
 # Headless capture (no OpenCV window)
 python3 capture_cats.py --no-preview
+
+# Headless capture (no OpenCV window)
+python3 capture_cats.py --capture {square|crop|full} 
 ```
 
 Command-line flags
@@ -91,6 +78,7 @@ Command-line flags
 |------|--------|
 | `--preview`     | Show live OpenCV window (default). |
 | `--no-preview`  | Disable window; quit with **Ctrl-C**. |
+| `--capture {square|crop|full}` | Change capture format |
 
 ## ⚙️ Tunable constants (top of file)
 
