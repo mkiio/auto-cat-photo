@@ -1,6 +1,7 @@
 # Auto Cat Photo Capture for Raspberry Pi
 
-Cat detection and auto photo capture using the Raspberry Pi AI Camera (Sony IMX500) On-sensor inference.  Can save full frame or rectangular or square crops of the cat with optional live preview.
+* Cat detection and auto photo capture using the Raspberry Pi AI Camera (Sony IMX500) On-sensor inference.  
+* Can save full frame or rectangular or square crops of the cat with optional live preview.
 ---
 
 ## ✨ Key features
