@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Cat Detector with (Optional) Live Preview & High-Res Crops  ─ threaded
----------------------------------------------------------------------
-• Raspberry Pi 5 + Pi AI Camera (Sony IMX500), Picamera2 0.3+, OpenCV, PIL
-• Live feed window can now be enabled/disabled with --preview / --no-preview
-• Detects cats (COCO ID 17), flashes bounding box when captured
-• Saves rectangular crops (with margin) + square 1024×1024 crops
-  from full-resolution stills, without blocking the NN callback.
+Cat Detector – single configurable capture (threaded)
+----------------------------------------------------
+• Raspberry Pi 5 + Pi AI Camera (Sony IMX500), Picamera2 0.3+, OpenCV, PIL
+• Live‑preview window toggled with --preview / --no-preview (default ON)
+• Captures **one** photo per detection – selectable via --capture {square|crop|full}
+    square : square crop (default) resized to 1024×1024
+    crop   : rectangular crop around cat (with margin)
+    full   : full‑frame still
 """
 from __future__ import annotations
 import time, sys, traceback, threading, argparse
@@ -17,17 +18,15 @@ import cv2
 from PIL import Image
 from picamera2 import Picamera2
 from picamera2.devices import IMX500
-from pathlib import Path
-
 
 # ─────────────────────────── User settings ─────────────────────────── #
 CONF_THRESHOLD   = 0.60
 MIN_INTERVAL_SEC = 10      # seconds between saves
-MARGIN_RATIO     = 0.20    # margin around detected box (0.20 = 10 % each side)
-CROP_SIZE        = 1024    # square crop size
+MARGIN_RATIO     = 0.20    # margin around detected box (0.20 = 10 % each side)
+CROP_SIZE        = 1024    # square crop size (pixels)
 SCRIPT_DIR = Path(__file__).resolve().parent
-SAVE_DIR   = SCRIPT_DIR / "photos"    # ./photos next to the script
-MODEL_BLOB       = (
+SAVE_DIR   = SCRIPT_DIR / "photos"           # ./photos next to the script
+MODEL_BLOB = (
     "/usr/share/imx500-models/"
     "imx500_network_ssd_mobilenetv2_fpnlite_320x320_pp.rpk"
 )
@@ -57,32 +56,48 @@ def make_square_box(x0, y0, x1, y1, w, h):
     return nx0, ny0, nx1, ny1
 
 
-def save_crops(rgb: np.ndarray, box, out_dir: Path):
-    x0, y0, x1, y1 = box
-    if x1 <= x0 or y1 <= y0:
-        return
+def save_photo(rgb: np.ndarray, box, out_dir: Path, mode: str):
+    """Save exactly one JPEG according to *mode* (square|crop|full)."""
     try:
         out_dir.mkdir(parents=True, exist_ok=True)
         ts = time.strftime("%Y%m%d_%H%M%S")
-        # rectangular crop
-        rect = rgb[y0:y1, x0:x1]
-        Image.fromarray(rect).save(out_dir / f"cat_{ts}.jpg", quality=92)
-        # square crop
+
+        # ------ full frame ------ #
+        if mode == "full":
+            Image.fromarray(rgb).save(out_dir / f"cat_{ts}_full.jpg", quality=92)
+            print(f"[INFO] saved cat_{ts}_full.jpg")
+            return
+
+        x0, y0, x1, y1 = box
+        if x1 <= x0 or y1 <= y0:
+            return  # invalid box
+
+        if mode == "crop":
+            # rectangular crop with margin
+            crop = rgb[y0:y1, x0:x1]
+            Image.fromarray(crop).save(out_dir / f"cat_{ts}_crop.jpg", quality=92)
+            print(f"[INFO] saved cat_{ts}_crop.jpg")
+            return
+
+        # default → square
         h_img, w_img, _ = rgb.shape
         sx0, sy0, sx1, sy1 = make_square_box(x0, y0, x1, y1, w_img, h_img)
         square = rgb[sy0:sy1, sx0:sx1]
         sq = Image.fromarray(square).resize((CROP_SIZE, CROP_SIZE), Image.LANCZOS)
         sq.save(out_dir / f"cat_{ts}_square.jpg", quality=92)
-        print(f"[INFO] saved cat_{ts}.jpg & cat_{ts}_square.jpg")
+        print(f"[INFO] saved cat_{ts}_square.jpg")
+
     except Exception as e:
-        print(f"[WARN] failed to save crops: {e}")
+        print(f"[WARN] failed to save photo: {e}")
 
 
 class CatDetector:
     def __init__(self,
                  model_blob: str = MODEL_BLOB,
-                 enable_preview: bool = True):
+                 enable_preview: bool = True,
+                 capture_mode: str = "square"):
         self.enable_preview = enable_preview
+        self.capture_mode   = capture_mode  # square | crop | full
 
         # NN + camera -------------------------------------------------- #
         self.imx = IMX500(model_blob)
@@ -92,7 +107,7 @@ class CatDetector:
         self.preview_cfg = self.cam.create_preview_configuration(
             main={"format": "RGB888", "size": (640, 480)}
         )
-        # still (full-res)
+        # still (full‑res)
         self.still_cfg = self.cam.create_still_configuration(
             main={"format": "RGB888"}
         )
@@ -103,7 +118,7 @@ class CatDetector:
         self.last_saved   = 0.0
         self.flash_frames = 0
         self.last_box     = (0, 0, 0, 0)
-        self.pending_box  = None  # preview coords awaiting high-res capture
+        self.pending_box  = None  # preview coords awaiting high‑res capture
         self.capture_thread = None
 
     # ────────────────  NN callback ──────────────── #
@@ -121,7 +136,7 @@ class CatDetector:
                 continue
             now = time.time()
             if now - self.last_saved < MIN_INTERVAL_SEC:
-                break  # respect min-interval
+                break  # respect min‑interval
             # map to preview pixels
             rel = tuple(boxes[i])
             x, y, w, h = self.imx.convert_inference_coords(
@@ -147,7 +162,7 @@ class CatDetector:
                 self.capture_thread.start()
             break
 
-    # ────────────────  High-res capture worker ──────────────── #
+    # ────────────────  High‑res capture worker ──────────────── #
     def _capture_highres_worker(self):
         time.sleep(0.05)  # let callback fully return
         try:
@@ -159,17 +174,17 @@ class CatDetector:
             full  = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             h_full, w_full, _ = full.shape
 
-            # scale preview box -> full-res box
+            # scale preview box -> full‑res box
             x0, y0, x1, y1, w_pre, h_pre = self.pending_box
             sx, sy = w_full / w_pre, h_full / h_pre
             box_full = (
                 int(x0 * sx), int(y0 * sy),
                 int(x1 * sx), int(y1 * sy),
             )
-            save_crops(full, box_full, SAVE_DIR)
+            save_photo(full, box_full, SAVE_DIR, self.capture_mode)
 
         except Exception as e:
-            print(f"[ERROR] high-res capture failed: {e}")
+            print(f"[ERROR] high‑res capture failed: {e}")
         finally:
             try:
                 self.cam.stop()
@@ -183,7 +198,7 @@ class CatDetector:
         if self.enable_preview:
             print("[INFO] live preview ON  – press 'q' to quit.")
         else:
-            print("[INFO] live preview OFF – press Ctrl-C to quit.")
+            print("[INFO] live preview OFF – press Ctrl‑C to quit.")
 
         self.cam.start()
         if self.enable_preview:
@@ -220,8 +235,10 @@ class CatDetector:
 # ──────────────────────────  CLI handling  ────────────────────────── #
 def parse_cli() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Cat detector with optional live preview window."
+        description="Cat detector with optional live preview window and selectable capture type."
     )
+
+    # preview toggle -------------------------------------------------- #
     preview_group = parser.add_mutually_exclusive_group()
     preview_group.add_argument(
         "--preview",
@@ -236,13 +253,23 @@ def parse_cli() -> argparse.Namespace:
         help="Disable live preview window."
     )
     parser.set_defaults(preview=True)
+
+    # capture mode ---------------------------------------------------- #
+    parser.add_argument(
+        "--capture",
+        choices=["square", "crop", "full"],
+        default="square",
+        help="Photo type to save on detection: square (default), crop (rectangular), or full (full‑frame)."
+    )
+
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_cli()
     try:
-        CatDetector(enable_preview=args.preview).run()
+        CatDetector(enable_preview=args.preview,
+                    capture_mode=args.capture).run()
     except Exception as exc:
         print(f"[ERROR] {exc}")
         traceback.print_exc()
