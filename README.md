@@ -38,7 +38,7 @@
 Install any missing Python deps with:
 
 ```
-sudo apt install python3-picamera2 python3-opencv python3-pil
+sudo apt install python3-picamera2 python3-opencv python3-pil imx500-all imx500-tools
 ```
 
 ---
