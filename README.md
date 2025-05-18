@@ -19,7 +19,7 @@
 
 ## 🖥️ Tested hardware & OS
 
-* Raspberry Pi 5 (4+ GB) w/Raspberry Pi OS
+* Raspberry Pi 5 (4+ GB), Raspberry Pi 4B (2+ GB) 
 * Raspberry Pi AI Camera 
 * Python 3.11 + Picamera2 ≥ 0.3
 
