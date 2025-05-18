@@ -2,7 +2,8 @@
 """
 Cat Detector – single configurable capture (threaded)
 ----------------------------------------------------
-• Raspberry Pi + Pi AI Camera (Sony IMX500), Picamera2 0.3+, OpenCV, PIL
+• Raspberry Pi 4B + Pi AI Camera (Sony IMX500), Picamera2 0.3+, OpenCV, PIL
+• Note: Requires displayhatmini library, which is not compatible with Raspberry Pi 5 devices.
 • Live preview on Pimoroni Display HAT Mini toggled with --preview / --no-preview (default ON)
 • Captures **one** photo per detection – selectable via --capture {square|crop|full}
     square : square crop (default) resized to 1024×1024
