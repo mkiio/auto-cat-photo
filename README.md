@@ -41,6 +41,12 @@ Install any missing Python deps with:
 sudo apt install python3-picamera2 python3-opencv python3-pil imx500-all imx500-tools
 ```
 
+Display Hat Mini script requires displayhatmini library (Pi 4 only)
+```
+pip3 install displayhatmini
+```
+See https://github.com/pimoroni/displayhatmini-python for Display Hat Mini details
+
 ---
 
 ## 🤖 Neural-network model
