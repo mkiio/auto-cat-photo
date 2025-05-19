@@ -1,0 +1,38 @@
+# settings.yaml
+# Cat Detector Application Settings
+
+# --- Camera Settings ---
+# AI Camera (cam0) for detection
+ai_camera:
+  camera_num: 0
+  preview_resolution: [640, 480] # width, height
+  format: "RGB888"
+
+# HQ Camera (cam1) for capture
+hq_camera:
+  camera_num: 1
+  capture_resolution: null # null for max resolution, or [width, height]
+  format: "RGB888"
+  jpeg_quality: 95
+
+# --- Detection Settings ---
+detection:
+  model_blob_path: "/usr/share/imx500-models/imx500_network_ssd_mobilenetv2_fpnlite_320x320_pp.rpk"
+  coco_cat_id: 17
+  confidence_threshold: 0.50
+  min_interval_sec: 10 # Minimum seconds between HQ captures
+  preview_box_margin_ratio: 0.20 # Margin around detected box for preview overlay
+
+# --- Application Settings ---
+application:
+  save_photos: true
+  save_dir: "photos" # Relative to the script directory or absolute path
+  enable_preview: true # For AI camera's live feed
+
+# --- Logging Settings ---
+logging:
+  log_file: "cat_detector.log"
+  log_level: "INFO" # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  log_to_console: true
+  log_to_file: true

@@ -1,0 +1,10 @@
+PyYAML>=5.1 # For configuration file loading
+numpy>=1.20 # For numerical operations, especially image arrays
+opencv-python>=4.5 # For image processing (likecvtColor) and the optional preview window
+Pillow>=8.0 # For image manipulation and saving (e.g., JPEGs)
+# picamera2 is a core dependency for camera control.
+# It's often best installed via apt on Raspberry Pi OS for system integration:
+# sudo apt install python3-picamera2
+# However, if you prefer to manage it with pip or need a specific version,
+# you can uncomment the line below. Be aware of potential conflicts with apt version.
+# picamera2>=0.3.12
