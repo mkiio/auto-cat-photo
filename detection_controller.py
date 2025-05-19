@@ -75,13 +75,6 @@ class DetectionController:
         try:
             self.logger.info(f"Initializing AI Model (IMX500) with blob: {self.model_blob_path}")
             self.imx = IMX500(self.model_blob_path) # type: ignore
-            # The IMX500 wrapper should ideally allow specifying camera number or derive it.
-            # Assuming the Picamera2 instance for IMX500 should use the specific ai_camera_num.
-            # The original script used self.imx.camera_num, implying IMX500 might manage this.
-            # For clarity, we explicitly pass the configured camera number if the API supports it.
-            # If IMX500 determines its own camera, this might need adjustment.
-            # If IMX500 class automatically uses cam 0, and ai_camera_num is also 0, it's fine.
-            # If they differ, we need to ensure Picamera2(self.ai_camera_num) is the one IMX500 expects.
 
             self.logger.info(f"Initializing AI Camera (cam{self.ai_camera_num}) for detection...")
             self.cam_ai = Picamera2(self.ai_camera_num) # type: ignore
@@ -101,14 +94,6 @@ class DetectionController:
         """Callback executed by Picamera2 after a frame is processed by IMX500."""
         current_detection_box_for_frame = None
         try:
-            # Retrieve the original frame that was processed for detection.
-            # This might require accessing the completed request or a specific buffer.
-            # The original script captured a new array in the main loop for display.
-            # For efficiency, we should use the frame associated with this detection.
-            # Assuming request.make_array("main") gives the frame for this metadata.
-            # If not, this part needs adjustment based on Picamera2 API for metadata-linked frames.
-            # For now, we will capture a fresh one in run_detection_loop if needed for frame_ready_callbacks
-            # and focus on detection data here.
 
             metadata = request.get_metadata()
             outputs = self.imx.get_outputs(metadata) # type: ignore
@@ -147,12 +132,6 @@ class DetectionController:
 
 
                     # Emit cat_detected event
-                    # For the event, we might want to pass the frame that led to detection.
-                    # This is tricky with post_callback as the frame might not be easily accessible
-                    # or could be a different buffer.
-                    # For now, we'll pass None for the frame in the event,
-                    # CaptureController can decide to capture a fresh one.
-                    # A more advanced setup might use Queues to pass (frame, detection_data).
                     event_data: CatDetectedEventData = (None, detection_box_preview, float(score), "cat") # type: ignore # Frame is None
                     for callback in self.cat_detected_callbacks:
                         try:
@@ -352,7 +331,7 @@ if __name__ == '__main__':
 
             if not opencv_window_created: return # Don't try to show if window failed
 
-            display_bgr = frame if PICAMERA2_AVAILABLE and frame.shape[2] == 3 else cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            display_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR) if PICAMERA2_AVAILABLE and frame.shape[2] == 3 else frame
 
             if detection_box:
                 _last_box_preview_cv_main = detection_box
