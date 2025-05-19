@@ -5,11 +5,9 @@
 
 **Automatically detect and capture photos of cats using a Raspberry Pi**
 
-Auto Cat Photo 2 uses a the Pi AI camera for efficient cat detection and a Pi HQ camera for capturing stunning images. 
+Auto Cat Photo 2 uses a the Pi AI camera for efficient cat detection and a Pi HQ camera for capturing images. 
 
 ## How It Works
-
-The application operates using two cameras connected to a Raspberry Pi:
 
 1.  **Detection Camera: Raspberry Pi AI Camera**: This camera provides a continuous video feed that is processed by an onboard AI model (SSD MobileNetV2) to detect the presence of cats.
 2.  **High-Quality Capture Camera: Raspberry Pi HQ Camera**: When the AI camera detects a cat with sufficient confidence, this second camera is triggered to capture a high-resolution photograph.
