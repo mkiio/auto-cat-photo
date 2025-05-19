@@ -60,8 +60,8 @@ Key features include:
 
 2.  **Clone the Repository**:
     ```bash
-    git clone <your-repository-url> # Replace with your actual GitHub repository URL
-    cd auto-cat-photo-2 # Or your repository's directory name
+    git clone https://github.com/mkiio/auto-cat-photo
+    cd auto-cat-photo
     ```
 
 3.  **Install Python Dependencies**:
