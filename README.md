@@ -11,38 +11,28 @@ Auto Cat Photo 2 uses a the Pi AI camera for efficient cat detection and a Pi HQ
 
 The application operates using two cameras connected to a Raspberry Pi:
 
-1.  **AI Detection Camera (e.g., Raspberry Pi Camera Module 3 with IMX500 AI sensor or similar)**: This camera provides a continuous video feed that is processed by an onboard AI model (e.g., SSD MobileNetV2) to detect the presence of cats.
-2.  **High-Quality Capture Camera (e.g., Raspberry Pi HQ Camera)**: When the AI camera detects a cat with sufficient confidence, this second camera is triggered to capture a high-resolution photograph.
+1.  **Detection Camera: Raspberry Pi AI Camera**: This camera provides a continuous video feed that is processed by an onboard AI model (SSD MobileNetV2) to detect the presence of cats.
+2.  **High-Quality Capture Camera: Raspberry Pi HQ Camera**: When the AI camera detects a cat with sufficient confidence, this second camera is triggered to capture a high-resolution photograph.
 
 Key features include:
 * **Live Preview**: Optionally, display a live feed from the AI camera with detected cats highlighted.
 * **Configurable Detection**: Adjust detection confidence, minimum interval between captures, and other parameters.
-* **Modular Design**: Easily extendable and maintainable code structure.
 * **Robust Logging**: Detailed logs for monitoring and troubleshooting.
 * **External Configuration**: Settings are managed via a `settings.yaml` file, allowing for easy adjustments without code changes.
 
 ## Hardware Requirements
 
 * **Raspberry Pi**:
-    * Raspberry Pi 5 (4GB RAM or more recommended) or Raspberry Pi 4 Model B (4GB RAM or more recommended).
+    * Raspberry Pi 5 (4GB RAM or more recommended) 
     * Adequate power supply for the Raspberry Pi and connected peripherals.
-    * MicroSD card (16GB or larger, Class 10 or better recommended).
 * **Cameras**:
-    * **AI Detection Camera**:
-        * A camera compatible with on-device AI processing for detection. The original script was designed for a Sony IMX500 based AI camera (often camera `0` on the Pi).
-        * *Example*: Raspberry Pi Camera Module with an AI co-processor or a standard camera module if AI processing is handled efficiently by the Pi 5's CPU (though a dedicated AI sensor is preferred for performance).
-    * **HQ Capture Camera**:
-        * A camera capable of capturing high-resolution still images. (Often camera `1` on the Pi).
-        * *Example*: Raspberry Pi HQ Camera (Sony IMX477 sensor) or Raspberry Pi Camera Module 2/3.
-* **Accessories (Recommended)**:
-    * Camera cables (ensure correct type and length for your Pi and camera modules).
-    * Mounts or enclosures for the Raspberry Pi and cameras.
-    * Heatsinks and/or a fan for the Raspberry Pi, especially for extended operation.
+    * **Detection Camera**:
+        *  Raspberry Pi AI Camera w/Sony IMX500 based AI camera 
+    * **Capture Camera**:
+        * Raspberry Pi HQ Camera(Sony IMX477 sensor) or Raspberry Pi Camera Module 2/3.
 
 ## Software & Dependencies
 
-* **Operating System**: Raspberry Pi OS (64-bit recommended, based on Debian Bullseye or later).
-* **Python**: Python 3.9 or newer.
 * **Libraries**:
     * `picamera2`: For camera control on Raspberry Pi.
     * `PyYAML`: For loading an external configuration file.
@@ -81,19 +71,6 @@ Key features include:
     source .venv/bin/activate
     pip install -r requirements.txt
     ```
-    *(You will need to create a `requirements.txt` file, see below)*
-
-    **Create `requirements.txt`**:
-    Create a file named `requirements.txt` in the root of your project with the following content:
-    ```txt
-    PyYAML>=5.0
-    numpy>=1.20
-    opencv-python>=4.5
-    Pillow>=8.0
-    # picamera2 is typically installed via apt, but if you need a specific pip version:
-    # picamera2>=0.3 
-    ```
-    Then run `pip install -r requirements.txt`.
 
 4.  **Configure the Application**:
     * Copy or rename the example configuration file if one is provided, or create `settings.yaml` based on the structure shown in `config.py` or the example in the previous response.
@@ -125,11 +102,11 @@ Key features include:
           log_to_console: true
           log_to_file: true
         ```
-    * **Important**: Verify the `model_blob_path` in `settings.yaml`. This path should point to the AI model file used for detection (e.g., for the IMX500). If you are not using an IMX500 or your model is located elsewhere, update this path. If you're using a different detection mechanism, the `detection_controller.py` might need adjustments.
+    * **Important**: Verify the `model_blob_path` in `settings.yaml`. This path should point to the AI model file used for detection. If your model is located elsewhere, update this path.
     * Adjust `camera_num` for `ai_camera` and `hq_camera` if your cameras are not detected as `0` and `1` respectively. You can list available cameras using `libcamera-hello --list-cameras`.
 
 5.  **Run the Application**:
-    (Ensure your virtual environment is activated if you created one: `source .venv/bin/activate`)
+
     ```bash
     python app.py
     ```
@@ -157,10 +134,6 @@ Key features include:
     * Ensure your Raspberry Pi has adequate cooling.
     * If not using a dedicated AI camera, detection on the CPU can be intensive. You might need to adjust preview resolution or AI model complexity.
 * **Check Logs**: The application logs to `cat_detector.log` (by default) and the console. These logs provide valuable information for diagnosing issues.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit pull requests or open issues for bugs, feature requests, or improvements.
 
 ## License
 
