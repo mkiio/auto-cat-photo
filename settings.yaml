@@ -3,17 +3,18 @@
 
 # --- Camera Settings ---
 # AI Camera (cam0) for detection
+# settings.yaml
 ai_camera:
   camera_num: 0
-  preview_resolution: [640, 480] # width, height
-  format: "RGB888"
+  preview_resolution: [640, 480]
+  format: "BGR888" # Explicitly request BGR from Picamera2
 
-# HQ Camera (cam1) for capture
 hq_camera:
   camera_num: 1
-  capture_resolution: null # null for max resolution, or [width, height]
-  format: "RGB888"
+  capture_resolution: null
+  format: "BGR888" # Explicitly request BGR from Picamera2
   jpeg_quality: 95
+# ... rest of your settings
 
 # --- Detection Settings ---
 detection:
