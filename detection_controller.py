@@ -352,7 +352,7 @@ if __name__ == '__main__':
 
             if not opencv_window_created: return # Don't try to show if window failed
 
-            display_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR) if PICAMERA2_AVAILABLE and frame.shape[2] == 3 else frame
+            display_bgr = frame if PICAMERA2_AVAILABLE and frame.shape[2] == 3 else cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
             if detection_box:
                 _last_box_preview_cv_main = detection_box
